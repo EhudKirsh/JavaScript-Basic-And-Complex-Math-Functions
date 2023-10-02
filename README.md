@@ -1,5 +1,4 @@
-# Basic-JavaScript-Math-Functions
-List of basic math functions i use in their most efficient javascript forms:
+List of basic math functions I use in their most efficient JavaScript forms:
 
 ```js
 'use strict'
