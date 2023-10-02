@@ -2,6 +2,9 @@ List of basic math functions I use in their most efficient JavaScript forms:
 
 ```js
 'use strict'
+
+/*--------------Array(reduce)Methods--------------*/
+
 /*--------------Statistics--------------*/
 // Use Each Of These Directly On An Array, i.e. Func([#,#,#,...])
 
@@ -28,11 +31,11 @@ const Sum=A=>A.reduce((a,b)=>a+b),Mean=A=>Sum(A)/A.length
 }
 /*--------------Iterative Greatest Common Divisor & Least Common Multiple--------------*/
 ,gcd=(a,b)=>{a<b&&([a,b]=[b,a]);while(b!=0){[a,b]=[b,a%b]}return a},lcm=(a,b)=>a*b/gcd(a,b),GCD=A=>A.reduce(gcd),LCM=A=>A.reduce(lcm)
-
 /*--------------Sorting--------------*/
 ,Rank=A=>{const S=A.slice().sort((a,b)=>b-a);return A.map(v=>S.indexOf(v)+1)}
 
 /*--------------Non-Array(reduce)Methods--------------*/
+
 /*--------------TypeChecks--------------*/
 ,isNumeric=N=>!isNaN(parseFloat(N))/* && isFinite(n) */
 /*--------------Factorial--------------*/
