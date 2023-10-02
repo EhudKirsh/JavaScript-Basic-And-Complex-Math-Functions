@@ -1,7 +1,7 @@
 # Basic-JavaScript-Math-Functions
 List Of Basic Math Functions I Use In Their Most Efficient JavaScript Forms:
 
-
+```js
 'use strict'
 
 // Use Each Of These Directly On An Array, i.e. Func([#,#,#,...])
@@ -51,3 +51,4 @@ const Sum=A=>A.reduce((a,b)=>a+b),Mean=A=>Sum(A)/A.length
     else { n--; let x = p[0]; for(let i = 1; i < g + 2; i++) { x += p[i] / (n + i); } const t = n + g + 0.5; return Math.sqrt(2 * Math.PI) * Math.pow(t, (n + 0.5)) * Math.exp(-t) * x; }
 }
 ,Factorial=n=>{if (Number.isInteger(n)){if(n>=0){let r = 1; while (n > 0) {r *= n--} return r}else return Infinity} else {return Gamma(n + 1)}}
+```
