@@ -3,12 +3,6 @@ List of basic math functions i use in their most efficient javascript forms:
 
 ```js
 'use strict'
-
-// Use Each Of These Directly On An Array, i.e. Func([#,#,#,...])
-
-'use strict'
-/*--------------Array(reduce)Methods--------------*/
-
 /*--------------Statistics--------------*/
 // Use Each Of These Directly On An Array, i.e. Func([#,#,#,...])
 
