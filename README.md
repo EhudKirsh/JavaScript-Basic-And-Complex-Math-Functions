@@ -1,5 +1,7 @@
-List of basic math functions I use in their most efficient JavaScript forms:
 Sum, Mean, Median, Mode, Variance, SumProduct, Correlation, Minimum, Maximum, Range, Greatest Common Divisor, Least Common Multiple, Rank, Factorial
+
+List of basic math functions I use in their most efficient JavaScript forms
+
 ```js
 'use strict'
 /*--------------Array(reduce)Methods--------------*/
