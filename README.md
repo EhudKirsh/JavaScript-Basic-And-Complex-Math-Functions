@@ -8,11 +8,21 @@ List of basic math functions I use in their most efficient JavaScript forms:
 
 const Sum=A=>A.reduce((a,b)=>a+b)
 
-,Mean=A=>Sum(A)/A.length
+,MeanAverage=A=>Sum(A)/A.length
 
-,Mode=A=>Object.entries(A.reduce((a,v)=>{a[v]=a[v]?a[v]+1:1;returna},{})).reduce((a,v)=>(v[1]>=a[1]?v:a),[null,0])[0]
-
-,Median=A=>{A.sort((a,b)=>a-b);const L2=A.length/2;return L2%1==0?/*If Even*/(A[L2]+A[L2-1])/2:/*If Odd*/A[L2-0.5]}
+,ArrayOccurancesEachItem=A=>{
+    const counter={};for(let L=A.length;--L>=0;){const element=A[L];counter[element]?counter[element]+=1:counter[element]=1}return counter
+}
+,ModeAverage=A=>{//Array items with higest occurances, not just numbers but also strings
+    Array.isArray(A)&&(A=ArrayOccurancesEachItem(A))//Input can be array [] or object {}
+    const HighestOccurance=Object.values(A).reduce((a,b)=>Math.max(a,b))
+    ,keys=Object.keys(A)
+    let Mode=filteredKeys=keys.filter(key=>A[key]==HighestOccurance)
+    if(Mode.length<=1)Mode=Mode[0]
+    console.log('Mode: ',Mode,' Occurance: '+HighestOccurance)
+    return [Mode,HighestOccurance]
+}
+,MedianAverage=A=>{A.sort((a,b)=>a-b);const L2=A.length/2;return L2%1==0?/*If Even*/(A[L2]+A[L2-1])/2:/*If Odd*/A[L2-0.5]}
 
 ,Variance=array=>{const L=array.length,mean=Sum(array)/L;return Sum(array.map(x=>(x-mean)**2))/(L-1)},STD=array=>Math.sqrt(Variance(array))
 
@@ -36,11 +46,12 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     }
     return [Min,Max]
 }
+,Range=A=>{const a=MinMax3N2(A);return a[1]-a[0]}
 /*--------------Iterative Greatest Common Divisor & Least Common Multiple--------------*/
 ,gcd=(a,b)=>{a<b&&([a,b]=[b,a]);while(b!=0){[a,b]=[b,a%b]}return a}
-,lcm=(a,b)=>a*b/gcd(a,b)
-
 ,GCD=A=>A.reduce(gcd)
+
+,lcm=(a,b)=>a*b/gcd(a,b)
 ,LCM=A=>A.reduce(lcm)
 
 ,FracPart=IN=>{ if (String(IN).includes('.') && String(IN).length > 0) { return String(IN).split('.')[1] } else { return '' } }
@@ -54,7 +65,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 
 /*--------------Non-Array(reduce)Methods--------------*/
 /*--------------TypeChecks--------------*/
-,isNumeric=N=>!isNaN(parseFloat(N))/*&&isFinite(n) */
+,isNumeric=N=>!isNaN(parseFloat(N))/* && isFinite(n) */
 /*--------------Factorial--------------*/
 ,Gamma=n=>{
     //some magic constants
