@@ -10,6 +10,8 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 
 ,MeanAverage=A=>Sum(A)/A.length
 
+,MedianAverage=A=>{A.sort((a,b)=>a-b);const L2=A.length/2;return L2%1==0?/*If Even*/(A[L2]+A[L2-1])/2:/*If Odd*/A[L2-0.5]}
+
 ,ArrayOccurancesEachItem=A=>{
     const counter={};for(let L=A.length;--L>=0;){const element=A[L];counter[element]?counter[element]+=1:counter[element]=1}return counter
 }
@@ -22,9 +24,14 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     console.log('Mode: ',Mode,' Occurance: '+HighestOccurance)
     return [Mode,HighestOccurance]
 }
-,MedianAverage=A=>{A.sort((a,b)=>a-b);const L2=A.length/2;return L2%1==0?/*If Even*/(A[L2]+A[L2-1])/2:/*If Odd*/A[L2-0.5]}
 
-,Variance=array=>{const L=array.length,mean=Sum(array)/L;return Sum(array.map(x=>(x-mean)**2))/(L-1)},STD=array=>Math.sqrt(Variance(array))
+//Sample Variance σ² & Standard Deviation σ
+,SampVariance=A=>{const L=A.length,mean=Sum(A)/L;return Sum(A.map(x=>(x-mean)**2))/(L-1)}
+,SampSTD=A=>Math.sqrt(SampVariance(A))
+
+//Population Variance S² & Standard Deviation S
+,PopVariance=A=>{const L=A.length,mean=Sum(A)/L;return Sum(A.map(x=>(x-mean)**2))/L}
+,PopSTD=A=>Math.sqrt(SampVariance(A))
 
 ,SumProduct=(Array1,Array2)=>{let Result=0;for(let L=Array1.length;--L>=0;){Result+=Array1[L]*Array2[L]}return Result}
 
@@ -32,7 +39,6 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     const n=Array1.length,Sum1=Sum(Array1),Sum2=Sum(Array2)
     return (n*SumProduct(Array1,Array2)-Sum1*Sum2)/Math.sqrt((n*SumProduct(Array1,Array1)-Sum1**2)*(n*SumProduct(Array2,Array2)-Sum2**2))
 }
-/*--------------Minimum & Maximum--------------*/
 ,Minimum=A=>A.reduce((a,b)=>Math.min(a,b))
 ,Maximum=A=>A.reduce((a,b)=>Math.max(a,b))
 
@@ -47,6 +53,8 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     return [Min,Max]
 }
 ,Range=A=>{const a=MinMax3N2(A);return a[1]-a[0]}
+
+,Rank=A=>{const S=A.slice().sort((a,b)=>b-a);return A.map(v=>S.indexOf(v)+1)}
 /*--------------Iterative Greatest Common Divisor & Least Common Multiple--------------*/
 ,gcd=(a,b)=>{a<b&&([a,b]=[b,a]);while(b!=0){[a,b]=[b,a%b]}return a}
 ,GCD=A=>A.reduce(gcd)
@@ -54,16 +62,23 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 ,lcm=(a,b)=>a*b/gcd(a,b)
 ,LCM=A=>A.reduce(lcm)
 
+/*--------------Polynomial Equations Solutions--------------*/
+//These find all the non-imaginary solutions for x @y=0
+
+,SolveLinear=(m,c)=>-Number((c/m).toFixed(3))//y=m⋅x+c , m = gradient, c = y-intercept
+
+,SolveQuadratic=(a,b,c)=>{//y=a⋅x²+b⋅x+c, also known as parabolic
+    const sqrt_discriminant=Math.sqrt(b**2-4*a*c),a2=2*a
+    ,Solutions=[-Number(((sqrt_discriminant+b)/a2).toFixed(3)),Number(((sqrt_discriminant-b)/a2).toFixed(3))]
+    return [Solutions[1],NaN].includes(Solutions[0])?Solutions[0]:Solutions.sort((a,b)=>a-b)
+}
+/*--------------Non-Array(reduce)Methods--------------*/
 ,FracPart=IN=>{ if (String(IN).includes('.') && String(IN).length > 0) { return String(IN).split('.')[1] } else { return '' } }
 
 ,RemDiv=(Dividend, Divisor)=>{
     const Sign = Math.sign(Number(Dividend)) * Math.sign(Number(Divisor)); Dividend = String(Dividend).replaceAll('-', ''); Divisor = String(Divisor).replaceAll('-', '')
     const DecFigs = Math.max(FracPart(Dividend).length, FracPart(Divisor).length, 1)/* - 1*/; return Sign * (Dividend % Divisor).toFixed(DecFigs)
 }
-/*--------------Sorting--------------*/
-,Rank=A=>{const S=A.slice().sort((a,b)=>b-a);return A.map(v=>S.indexOf(v)+1)}
-
-/*--------------Non-Array(reduce)Methods--------------*/
 /*--------------TypeChecks--------------*/
 ,isNumeric=N=>!isNaN(parseFloat(N))/* && isFinite(n) */
 /*--------------Factorial--------------*/
