@@ -65,7 +65,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 /*--------------Polynomial General Solutions--------------*/
 //These find all the non-imaginary solutions for x @y=0
 
-,SolveLinear=(m,c)=>-Number((c/m).toFixed(3))//y=m⋅x+c , m = gradient, c = y-intercept
+,SolveLinear=(m,c)=>Number((-c/m).toFixed(3))//y=m⋅x+c , m = gradient, c = y-intercept
 
 ,SolveQuadratic=(a,b,c)=>{//y=a⋅x²+b⋅x+c, also known as parabolic
     if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
