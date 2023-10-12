@@ -62,7 +62,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 ,lcm=(a,b)=>a*b/gcd(a,b)
 ,LCM=A=>A.reduce(lcm)
 
-/*--------------Polynomial Equations Solutions--------------*/
+/*--------------Polynomial General Solutions--------------*/
 //These find all the non-imaginary solutions for x @y=0
 
 ,SolveLinear=(m,c)=>-Number((c/m).toFixed(3))//y=m⋅x+c , m = gradient, c = y-intercept
