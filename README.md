@@ -65,15 +65,23 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 /*--------------Polynomial General Solutions--------------*/
 //These find all the non-imaginary solutions for x @y=0
 
-,SolveLinear=(m,c)=>Number((-c/m).toFixed(3))//y=m⋅x+c , m = gradient, c = y-intercept
-
+,SolveLinear=(m,c)=>//y=m⋅x+c , m = gradient, c = y-intercep
+    m==0?'No Gradient? No Root!':Number((-c/m).toFixed(3))
 ,SolveQuadratic=(a,b,c)=>{//y=a⋅x²+b⋅x+c, also known as parabolic
     if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
         return SolveLinear(b,c)
     }else{
-        const sqrt_discriminant=Math.sqrt(b**2-4*a*c),a2=2*a
-        ,Solutions=[Number((-(sqrt_discriminant+b)/a2).toFixed(3)),Number(((sqrt_discriminant-b)/a2).toFixed(3))].sort((a,b)=>a-b)
-        return [Solutions[1],NaN].includes(Solutions[0])?Solutions[0]:Solutions
+        const discriminant=b**2-4*a*c,a2=2*a
+        if(discriminant==0){//1 real root, which is technically also an imaginary root
+            return Number((-b/a2).toFixed(3))
+        }else{//Either 2 real roots OR 2 imaginary roots
+            const sqrt_discriminant=Math.sqrt(Math.abs(discriminant))
+            ,Roots=[Number((-(sqrt_discriminant+b)/a2).toFixed(3)),Number(((sqrt_discriminant-b)/a2).toFixed(3))].sort((a,b)=>a-b)
+            if(discriminant<0){//2 imaginary roots
+                Roots[0]=Roots[0]+'i';Roots[1]=Roots[1]+'i'
+            }
+            return Roots
+        }
     }
 }
 /*--------------Non-Array(reduce)Methods--------------*/
