@@ -63,7 +63,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 ,LCM=A=>A.reduce(lcm)
 
 /*--------------Polynomial General Solutions--------------*/
-//These find all the non-imaginary solutions for x @y=0
+//These find all the real and imaginary roots for x @y=0
 
 ,SolveLinear=(m,c)=>//y=m⋅x+c , m = gradient, c = y-intercep
     m==0?'No Gradient? No Root!':Number((-c/m).toFixed(3))
