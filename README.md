@@ -81,7 +81,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 ,SolveQuadratic=(a,b,c)=>{//y=a⋅x²+b⋅x+c, also known as parabolic
     if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
         return SolveLinear(b,c)
-    }else{
+    }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_2
         const discriminant=b**2-4*a*c,a2=2*a
         if(discriminant==0){//1 real 'repeated' root, which is technically also an imaginary root
             return Number((-b/a2).toFixed(3))
@@ -93,7 +93,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     }
 }
 ,SolveCubicDiscriminant=(a,b,c,d)=>{//y=a⋅x³+b⋅x²+c⋅x+d
-    if(a==0){//https://en.wikipedia.org/wiki/Discriminant#Degree_2
+    if(a==0){
         return SolveQuadratic(b,c,d)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_3
         const discriminant=18*a*b*c*d-4*d*b**3+b**2*c**2-4*a*c**3-27*a**2*d**2
