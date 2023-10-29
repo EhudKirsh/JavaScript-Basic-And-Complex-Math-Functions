@@ -109,7 +109,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 }
 ,SolveQuarticDiscriminant=(a,b,c,d,e)=>{//y=a⋅x⁴+b⋅x³+c⋅x²+d⋅x+e
     if(a==0){
-        return SolveCubic(b,c,d,e)
+        return SolveCubicDiscriminant(b,c,d,e)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_4
         const discriminant=256*a**3*e**3-192*a**2*b*d*e**2-128*a**2*c**2*e**2+144*a**2*c*d**2*e-27*a**2*d**4+144*a*b**2*c*e**2-6*a*b**2*d**2*e-80*a*b*c**2*d*e+18*a*b*c*d**3+16*a*c**4*e-4*a*c**3*d**2-27*b**4*e**2+18*b**3*c*d*e-4*b**3*d**3-4*b**2*c**3*e+b**2*c**2*d**2
         if(discriminant==0){
