@@ -4,7 +4,7 @@ List of basic math functions I use in their most efficient JavaScript forms:
 /*--------------Array(reduce)Methods--------------*/
 
 /*--------------Statistics--------------*/
-// Use Each Of These Directly On An Array, i.e. Func([#,#,#,...])
+// Use Each Of These Directly On An Array, i.e. Func([#,#,...])
 
 const Sum=A=>A.reduce((a,b)=>a+b)
 
@@ -33,11 +33,11 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 ,PopVariance=A=>{const L=A.length,mean=Sum(A)/L;return Sum(A.map(x=>(x-mean)**2))/L}
 ,PopSTD=A=>Math.sqrt(SampVariance(A))
 
-,SumProduct=(Array1,Array2)=>{let Result=0;for(let L=Array1.length;--L>=0;){Result+=Array1[L]*Array2[L]}return Result}
+,SumProduct=(A1,A2)=>{let Result=0;for(let L=A1.length;--L>=0;){Result+=A1[L]*A2[L]}return Result}
 
-,Correlation=(Array1,Array2)=>{//Pearson Coefficient 'R'
-    const n=Array1.length,Sum1=Sum(Array1),Sum2=Sum(Array2)
-    return (n*SumProduct(Array1,Array2)-Sum1*Sum2)/Math.sqrt((n*SumProduct(Array1,Array1)-Sum1**2)*(n*SumProduct(Array2,Array2)-Sum2**2))
+,Correlation=(A1,A2)=>{//Pearson Coefficient 'R'
+    const n=A1.length,Sum1=Sum(A1),Sum2=Sum(A2)
+    return (n*SumProduct(A1,A2)-Sum1*Sum2)/Math.sqrt((n*SumProduct(A1,A1)-Sum1**2)*(n*SumProduct(A2,A2)-Sum2**2))
 }
 ,Minimum=A=>A.reduce((a,b)=>Math.min(a,b))
 ,Maximum=A=>A.reduce((a,b)=>Math.max(a,b))
@@ -62,38 +62,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 ,lcm=(a,b)=>a*b/gcd(a,b)
 ,LCM=A=>A.reduce(lcm)
 
-/*--------------Polynomial General Solutions--------------*/
-//These find all the real and imaginary roots for x @y=0
-
-,SolveLinear=(m,c)=>//y=m⋅x+c , m = gradient, c = y-intercep
-    m==0?'No Gradient? No Root!':Number((-c/m).toFixed(3))
-,SolveQuadratic=(a,b,c)=>{//y=a⋅x²+b⋅x+c, also known as parabolic
-    if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
-        return SolveLinear(b,c)
-    }else{
-        const discriminant=b**2-4*a*c,a2=2*a
-        if(discriminant==0){//1 real root, which is technically also an imaginary root
-            return Number((-b/a2).toFixed(3))
-        }else{//Either 2 real roots OR 2 imaginary roots
-            const sqrt_discriminant=Math.sqrt(Math.abs(discriminant))
-            ,Roots=[Number((-(sqrt_discriminant+b)/a2).toFixed(3)),Number(((sqrt_discriminant-b)/a2).toFixed(3))].sort((a,b)=>a-b)
-            if(discriminant<0){//2 imaginary roots
-                Roots[0]=Roots[0]+'i';Roots[1]=Roots[1]+'i'
-            }
-            return Roots
-        }
-    }
-}
-/*--------------Non-Array(reduce)Methods--------------*/
-,FracPart=IN=>{ if (String(IN).includes('.') && String(IN).length > 0) { return String(IN).split('.')[1] } else { return '' } }
-
-,RemDiv=(Dividend, Divisor)=>{
-    const Sign = Math.sign(Number(Dividend)) * Math.sign(Number(Divisor)); Dividend = String(Dividend).replaceAll('-', ''); Divisor = String(Divisor).replaceAll('-', '')
-    const DecFigs = Math.max(FracPart(Dividend).length, FracPart(Divisor).length, 1)/* - 1*/; return Sign * (Dividend % Divisor).toFixed(DecFigs)
-}
-/*--------------TypeChecks--------------*/
-,isNumeric=N=>!isNaN(parseFloat(N))/* && isFinite(n) */
-/*--------------Factorial--------------*/
+/*--------------Factorial !--------------*/
 ,Gamma=n=>{//The use of this 'Gamma' is to ensure Factorial can work on fractions, not just integers
     const g = 7, // g represents the precision desired, p is the values of p[i] to plug into Lanczos' formula
     //some magic constants
@@ -102,4 +71,54 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     else { n--; let x = p[0]; for(let i = 1; i < g + 2; i++) { x += p[i] / (n + i); } const t = n + g + 0.5; return Math.sqrt(2 * Math.PI) * Math.pow(t, (n + 0.5)) * Math.exp(-t) * x; }
 }
 ,Factorial=n=>{if(Number.isInteger(n)){if(n>=0){let r = 1; while (n > 0) {r *= n--} return r}else return Infinity} else {return Gamma(n + 1)}}
+
+/*--------------Polynomial General Solutions--------------*/
+//These find all the real and complex roots for x @ y=0 and real/non-complex coefficients a,b,c,d & e
+
+,SolveLinear=(m,c)=>//y=m⋅x+c , m = gradient, c = y-intercep
+    m==0?'No Gradient? No Root!':Number((-c/m).toFixed(3))
+
+,SolveQuadratic=(a,b,c)=>{//y=a⋅x²+b⋅x+c, also known as parabolic
+    if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
+        return SolveLinear(b,c)
+    }else{
+        const discriminant=b**2-4*a*c,a2=2*a
+        if(discriminant==0){//1 real 'repeated' root, which is technically also an imaginary root
+            return Number((-b/a2).toFixed(3))
+        }else{//Either 2 real roots OR 2 imaginary roots
+            const sqrt_discriminant=Math.sqrt(Math.abs(discriminant))
+            ,Roots=[Number((-(sqrt_discriminant+b)/a2).toFixed(3)),Number(((sqrt_discriminant-b)/a2).toFixed(3))].sort((a,b)=>a-b)
+            return discriminant>0?Roots:[Roots[0]+'i',Roots[1]+'i']
+        }
+    }
+}
+,SolveCubicDiscriminant=(a,b,c,d)=>{//y=a⋅x³+b⋅x²+c⋅x+d
+    if(a==0){//https://en.wikipedia.org/wiki/Discriminant#Degree_2
+        return SolveQuadratic(b,c,d)
+    }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_3
+        const discriminant=18*a*b*c*d-4*d*b**3+b**2*c**2-4*a*c**3-27*a**2*d**2
+        //Depressed cubic, source: https://en.wikipedia.org/wiki/Cubic_equation#Depressed_cubic
+        if(discriminant==0){
+            return '2 real roots, 1 of which is an inflection point'
+        }else if(discriminant>0){
+            return '3 real distinct roots'
+        }else{
+            return '1 real root and 2 complex roots'
+        }
+    }
+}
+,SolveQuarticDiscriminant=(a,b,c,d,e)=>{//y=a⋅x⁴+b⋅x³+c⋅x²+d⋅x+e
+    if(a==0){
+        return SolveCubic(b,c,d,e)
+    }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_4
+        const discriminant=256*a**3*e**3-192*a**2*b*d*e**2-128*a**2*c**2*e**2+144*a**2*c*d**2*e-27*a**2*d**4+144*a*b**2*c*e**2-6*a*b**2*d**2*e-80*a*b*c**2*d*e+18*a*b*c*d**3+16*a*c**4*e-4*a*c**3*d**2-27*b**4*e**2+18*b**3*c*d*e-4*b**3*d**3-4*b**2*c**3*e+b**2*c**2*d**2
+        if(discriminant==0){
+            return 'at least 2 roots are equal'
+        }else if(discriminant>0){
+            return 'Roots are either all real or all complex'
+        }else{
+            return '2 real roots and 2 complex roots'
+        }
+    }
+}
 ```
