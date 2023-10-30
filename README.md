@@ -82,20 +82,6 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
         return SolveLinear(b,c)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_2
-        const discriminant=b**2-4*a*c,a2=2*a
-        if(discriminant==0){//1 real 'repeated' root, which is technically also an imaginary root
-            return Number((-b/a2).toFixed(3))
-        }else{//Either 2 real roots OR 2 imaginary roots
-            const sqrt_discriminant=Math.sqrt(Math.abs(discriminant))
-            ,Roots=[Number((-(sqrt_discriminant+b)/a2).toFixed(3)),Number(((sqrt_discriminant-b)/a2).toFixed(3))].sort((a,b)=>a-b)
-            return discriminant>0?Roots:[Roots[0]+'i',Roots[1]+'i']
-        }
-    }
-}
-,SolveQuadratic=(a,b,c)=>{//y=a⋅x²+b⋅x+c, also known as parabolic
-    if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
-        return SolveLinear(b,c)
-    }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_2
         const discriminant=b**2-4*a*c,a2=2*a,ba2=Number((-b/a2).toFixed(3))
         if(discriminant==0){//1 'repeated' real root
             return Number(ba2.toFixed(3))
@@ -106,6 +92,21 @@ const Sum=A=>A.reduce((a,b)=>a+b)
             }else{//2 complex roots
                 return sqrt_discriminantOver_2a==1?String(ba2+' ± '+'i'):String(ba2+' ± '+sqrt_discriminantOver_2a+'i')
             }
+        }
+    }
+}
+,SolveCubicDiscriminant=(a,b,c,d)=>{//y=a⋅x³+b⋅x²+c⋅x+d
+    if(a==0){
+        return SolveQuadratic(b,c,d)
+    }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_3
+        const discriminant=18*a*b*c*d-4*d*b**3+b**2*c**2-4*a*c**3-27*a**2*d**2
+        //Depressed cubic, source: https://en.wikipedia.org/wiki/Cubic_equation#Depressed_cubic
+        if(discriminant==0){
+            return '2 real roots, 1 of which is a stationary point'
+        }else if(discriminant>0){
+            return '3 real distinct roots'
+        }else{
+            return '1 real root and 2 complex roots'
         }
     }
 }
