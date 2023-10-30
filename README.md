@@ -84,7 +84,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_2
         const discriminant=b**2-4*a*c,a2=2*a,ba2=Number((-b/a2).toFixed(3))
         if(discriminant==0){//1 'repeated' real root
-            return Number(ba2.toFixed(3))
+            return ba2
         }else{//Either 2 real roots OR 2 complex roots
             const sqrt_discriminantOver_2a=Number((Math.sqrt(Math.abs(discriminant))/a2).toFixed(3))
             if(discriminant>0){//2 real roots
