@@ -90,7 +90,7 @@ const Sum=A=>A.reduce((a,b)=>a+b)
             if(discriminant>0){//2 real roots
                 return [Number((sqrt_discriminantOver_2a+ba2).toFixed(3)),Number((sqrt_discriminantOver_2a-ba2).toFixed(3))].sort((a,b)=>a-b)
             }else{//2 complex roots
-                return sqrt_discriminantOver_2a==1?String(ba2+' ± '+'i'):String(ba2+' ± '+sqrt_discriminantOver_2a+'i')
+                return sqrt_discriminantOver_2a==1?ba2+' ± i':ba2+' ± '+sqrt_discriminantOver_2a+'i'
             }
         }
     }
