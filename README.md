@@ -1,4 +1,4 @@
-List of basic math functions I use in their most efficient JavaScript forms:
+List of basic and complex math functions I use in their most efficient JavaScript forms:
 ```js
 'use strict'
 /*--------------Array(reduce)Methods--------------*/
@@ -82,19 +82,19 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
         return SolveLinear(b,c)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_2
-        const discriminant=b**2-4*a*c,a2=2*a,ba2=Number((-b/a2).toFixed(3))
+        const discriminant=b**2-4*a*c,a2=2*a,x=Number((-b/a2).toFixed(3))// δy/δx = 0 = 2ax+b ∴ x=-b/(2a)
         let Nature='Minima';a<0&&(Nature='Maxima') // δ²y/δx² = 2a
         if(discriminant==0){//1 'repeated' real root which is also the stationary point
-            console.log('Root (y=0) & '+Nature+': x = '+ba2)
+            console.log('Root (y=0) & '+Nature+': x = '+x)
         }else{//Either 2 real roots OR 2 complex roots
             const sqrt_discriminantOver_2a=Number((Math.sqrt(Math.abs(discriminant))/a2).toFixed(3))
-            ,x=Number((-b/(2*a)).toFixed(3)) // δy/δx = 0 = 2ax+b ∴ x=-b/(2a)
+            ,y=Number((a*x**2+b*x+c).toFixed(3))
             if(discriminant>0){//2 real roots
-                const Roots=[Number((ba2+sqrt_discriminantOver_2a).toFixed(3)),Number((ba2-sqrt_discriminantOver_2a).toFixed(3))].sort((a,b)=>a-b)
-                console.log('Roots (y=0): x₀ = '+Roots[0]+' , x₁ = '+Roots[1]+'\n'+Nature+': x = '+x+' , y = '+Number((a*x**2+b*x+c).toFixed(3)))
+                const Roots=[Number((x+sqrt_discriminantOver_2a).toFixed(3)),Number((x-sqrt_discriminantOver_2a).toFixed(3))].sort((a,b)=>a-b)
+                console.log('Roots (y=0): x₀ = '+Roots[0]+' , x₁ = '+Roots[1]+'\n'+Nature+': x = '+x+' , y = '+y)
             }else{//2 complex roots
-                let Roots=ba2+' ± '+sqrt_discriminantOver_2a+' i';sqrt_discriminantOver_2a==1&&(Roots=ba2+' ± i')
-                console.log('Roots (y=0): x = '+Roots+'\n'+Nature+': x = '+x+' , y = '+Number((a*x**2+b*x+c).toFixed(3)))
+                let Roots=x+' ± '+sqrt_discriminantOver_2a+' i';sqrt_discriminantOver_2a==1&&(Roots=x+' ± i')
+                console.log('Roots (y=0): x = '+Roots+'\n'+Nature+': x = '+x+' , y = '+y)
             }
         }
     }
