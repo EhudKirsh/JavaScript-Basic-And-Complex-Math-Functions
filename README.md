@@ -75,22 +75,26 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 /*--------------Polynomial General Solutions--------------*/
 //These find all the real and complex roots for x @ y=0 and real/non-complex coefficients a,b,c,d & e
 
-,SolveLinear=(m,c)=>//y=m⋅x+c , m = gradient, c = y-intercep
-    m==0?'No Gradient? No Root!':Number((-c/m).toFixed(3))
+,SolveLinear=(m,c)=>//y=mx+c , m = gradient, c = y-intercep
+    m==0?console.log('No Gradient? No Root!'):console.log('Root (y=0): x = '+Number((-c/m).toFixed(3)))
 
-,SolveQuadratic=(a,b,c)=>{//y=a⋅x²+b⋅x+c, also known as parabolic
+,SolveQuadratic=(a,b,c)=>{//y=ax²+bx+c, also known as parabolic
     if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
         return SolveLinear(b,c)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_2
         const discriminant=b**2-4*a*c,a2=2*a,ba2=Number((-b/a2).toFixed(3))
-        if(discriminant==0){//1 'repeated' real root
-            return ba2
+        let Nature='Minima';a<0&&(Nature='Maxima') // δ²y/δx² = 2a
+        if(discriminant==0){//1 'repeated' real root which is also the stationary point
+            console.log('Root (y=0) & '+Nature+': x = '+ba2)
         }else{//Either 2 real roots OR 2 complex roots
             const sqrt_discriminantOver_2a=Number((Math.sqrt(Math.abs(discriminant))/a2).toFixed(3))
+            ,x=Number((-b/(2*a)).toFixed(3)) // δy/δx = 0 = 2ax+b ∴ x=-b/(2a)
             if(discriminant>0){//2 real roots
-                return [Number((sqrt_discriminantOver_2a+ba2).toFixed(3)),Number((sqrt_discriminantOver_2a-ba2).toFixed(3))].sort((a,b)=>a-b)
+                const Roots=[Number((ba2+sqrt_discriminantOver_2a).toFixed(3)),Number((ba2-sqrt_discriminantOver_2a).toFixed(3))].sort((a,b)=>a-b)
+                console.log('Roots (y=0): x₀ = '+Roots[0]+' , x₁ = '+Roots[1]+'\n'+Nature+': x = '+x+' , y = '+Number((a*x**2+b*x+c).toFixed(3)))
             }else{//2 complex roots
-                return sqrt_discriminantOver_2a==1?ba2+' ± i':ba2+' ± '+sqrt_discriminantOver_2a+'i'
+                let Roots=ba2+' ± '+sqrt_discriminantOver_2a+' i';sqrt_discriminantOver_2a==1&&(Roots=ba2+' ± i')
+                console.log('Roots (y=0): x = '+Roots+'\n'+Nature+': x = '+x+' , y = '+Number((a*x**2+b*x+c).toFixed(3)))
             }
         }
     }
