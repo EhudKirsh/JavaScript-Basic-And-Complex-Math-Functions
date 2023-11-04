@@ -1,14 +1,12 @@
 List of basic and complex math functions I use in their most efficient JavaScript forms:
 ```js
 'use strict'
-/*--------------Array(reduce)Methods--------------*/
-
 /*--------------Statistics--------------*/
 // Use Each Of These Directly On An Array, i.e. Func([#,#,...])
 
-const Sum=A=>A.reduce((a,b)=>a+b)
+const Sum=A=>A.reduce((a,b)=>a+b) // Σ
 
-,MeanAverage=A=>Sum(A)/A.length
+,MeanAverage=A=>Sum(A)/A.length // µ
 
 ,MedianAverage=A=>{A.sort((a,b)=>a-b);const L2=A.length/2;return L2%1==0?/*If Even*/(A[L2]+A[L2-1])/2:/*If Odd*/A[L2-0.5]}
 
@@ -24,6 +22,8 @@ const Sum=A=>A.reduce((a,b)=>a+b)
     console.log('Mode: ',Mode,' Occurance: '+HighestOccurance)
     return [Mode,HighestOccurance]
 }
+
+,Rank=A=>{const S=A.slice().sort((a,b)=>b-a);return A.map(v=>S.indexOf(v)+1)}
 
 //Sample Variance σ² & Standard Deviation σ
 ,SampVariance=A=>{const L=A.length,mean=Sum(A)/L;return Sum(A.map(x=>(x-mean)**2))/(L-1)}
@@ -54,13 +54,15 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 }
 ,Range=A=>{const a=MinMax3N2(A);return a[1]-a[0]}
 
-,Rank=A=>{const S=A.slice().sort((a,b)=>b-a);return A.map(v=>S.indexOf(v)+1)}
 /*--------------Iterative Greatest Common Divisor & Least Common Multiple--------------*/
 ,gcd=(a,b)=>{a<b&&([a,b]=[b,a]);while(b!=0){[a,b]=[b,a%b]}return a}
 ,GCD=A=>A.reduce(gcd)
 
 ,lcm=(a,b)=>a*b/gcd(a,b)
 ,LCM=A=>A.reduce(lcm)
+
+/*--------------Logarithms & Exponentials--------------*/
+,BaseLog=(Base,Num)=>Number((Math.log(Num)/Math.log(Base)).toFixed(3))
 
 /*--------------Factorial !--------------*/
 ,Gamma=n=>{//The use of this 'Gamma' is to ensure Factorial can work on fractions, not just integers
@@ -72,8 +74,26 @@ const Sum=A=>A.reduce((a,b)=>a+b)
 }
 ,Factorial=n=>{if(Number.isInteger(n)){if(n>=0){let r = 1; while (n > 0) {r *= n--} return r}else return Infinity} else {return Gamma(n + 1)}}
 
-/*--------------Polynomial General Solutions--------------*/
-//These find all the real and complex roots for x @ y=0 and real/non-complex coefficients a,b,c,d & e
+/*--------------Imaginary & Complex Numbers--------------*/
+,ComplexSQRT=(a,b)=>{// Square Root √(a+bi), for real a & b
+    if(b==0){
+        return Math.sqrt(a)
+    }else{// Source: https://unacademy.com/content/jee/study-material/mathematics/square-root-of-a-complex-number
+        const SQRTa2b2=Math.hypot(a,b)
+        return [Math.sqrt((SQRTa2b2+a)/2),Math.sign(b)*Math.sqrt((SQRTa2b2-a)/2)] //±[](0) is real, ±[](1) is imaginary
+    }
+}
+,ComplexCBRT=(a,b)=>{// Cube Root ₃√(a+bi), for real a & b
+    if(b==0){
+        return Math.cbrt(a)
+    }else{// Source: Google Bard - "JS Cube Root of a Complex Number z=a+ib"
+        const θ=Math.atan2(b,a)/3,r=Math.cbrt(Math.hypot(a,b))
+        return [r*Math.cos(θ),r*Math.sin(θ)] //[](0) is real, [](1) is imaginary
+    }
+}
+
+/*---Polynomials: General Solutions To Find Roots, Stationary Points & Their Natures---*/
+//These find all the real and complex roots for x @ y=0 and stationary points and their natures for real/non-complex coefficients a, b, c, d, e & f
 
 ,SolveLinear=(m,c)=>//y=mx+c , m = gradient, c = y-intercep
     m==0?console.log('No Gradient? No Root!'):console.log('Root (y=0): x = '+Number((-c/m).toFixed(3)))
@@ -93,24 +113,9 @@ const Sum=A=>A.reduce((a,b)=>a+b)
                 const Roots=[Number((x+sqrt_discriminantOver_2a).toFixed(3)),Number((x-sqrt_discriminantOver_2a).toFixed(3))].sort((a,b)=>a-b)
                 console.log('Roots (y=0): x₀ = '+Roots[0]+' , x₁ = '+Roots[1]+'\n'+Nature+': x = '+x+' , y = '+y)
             }else{//2 complex roots
-                let Roots=x+' ± '+sqrt_discriminantOver_2a+' i';sqrt_discriminantOver_2a==1&&(Roots=x+' ± i')
+                let Roots=x+' ± '+Math.abs(sqrt_discriminantOver_2a)+' i';Math.abs(sqrt_discriminantOver_2a)==1&&(Roots=x+' ± i')
                 console.log('Roots (y=0): x = '+Roots+'\n'+Nature+': x = '+x+' , y = '+y)
             }
-        }
-    }
-}
-,SolveCubicDiscriminant=(a,b,c,d)=>{//y=a⋅x³+b⋅x²+c⋅x+d
-    if(a==0){
-        return SolveQuadratic(b,c,d)
-    }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_3
-        const discriminant=18*a*b*c*d-4*d*b**3+b**2*c**2-4*a*c**3-27*a**2*d**2
-        //Depressed cubic, source: https://en.wikipedia.org/wiki/Cubic_equation#Depressed_cubic
-        if(discriminant==0){
-            return '2 real roots, 1 of which is a stationary point'
-        }else if(discriminant>0){
-            return '3 real distinct roots'
-        }else{
-            return '1 real root and 2 complex roots'
         }
     }
 }
