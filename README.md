@@ -39,6 +39,15 @@ const Sum=A=>A.reduce((a,b)=>a+b) // Σ
     const n=A1.length,Sum1=Sum(A1),Sum2=Sum(A2)
     return (n*SumProduct(A1,A2)-Sum1*Sum2)/Math.sqrt((n*SumProduct(A1,A1)-Sum1**2)*(n*SumProduct(A2,A2)-Sum2**2))
 }
+
+,LinearExtrapolation=(x,x0,x1,y0,y1)=>y0+(x-x0)*(y1-y0)/(x1-x0) // Also works for interpolation
+
+```
+
+<img src='interp3.png' width='50%' height='50%'>
+
+```js
+
 ,Minimum=A=>A.reduce((a,b)=>Math.min(a,b))
 ,Maximum=A=>A.reduce((a,b)=>Math.max(a,b))
 
@@ -78,15 +87,15 @@ const Sum=A=>A.reduce((a,b)=>a+b) // Σ
 ,ComplexSQRT=(a,b)=>{// Square Root √(a+bi), for real a & b
     if(b==0){
         return Math.sqrt(a)
-    }else{// Source: https://unacademy.com/content/jee/study-material/mathematics/square-root-of-a-complex-number
-        const SQRTa2b2=Math.hypot(a,b)
-        return [Math.sqrt((SQRTa2b2+a)/2),Math.sign(b)*Math.sqrt((SQRTa2b2-a)/2)] //±[](0) is real, ±[](1) is imaginary
+    }else{
+        const HYPOT_ab=Math.hypot(a,b)
+        return [Math.sqrt((HYPOT_ab+a)/2),Math.sign(b)*Math.sqrt((HYPOT_ab-a)/2)] //±[](0) is real, ±[](1) is imaginary
     }
 }
 ,ComplexCBRT=(a,b)=>{// Cube Root ₃√(a+bi), for real a & b
     if(b==0){
         return Math.cbrt(a)
-    }else{// Source: Google Bard - "JS Cube Root of a Complex Number z=a+ib"
+    }else{
         const θ=Math.atan2(b,a)/3,r=Math.cbrt(Math.hypot(a,b))
         return [r*Math.cos(θ),r*Math.sin(θ)] //[](0) is real, [](1) is imaginary
     }
@@ -102,31 +111,46 @@ const Sum=A=>A.reduce((a,b)=>a+b) // Σ
     if(a==0){//Must use SolveLinear(b,c) @ a=0, otherwise you'd divide by 0
         return SolveLinear(b,c)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_2
-        const discriminant=b**2-4*a*c,a2=2*a,x=Number((-b/a2).toFixed(3))// δy/δx = 0 = 2ax+b ∴ x=-b/(2a)
-        let Nature='Minima';a<0&&(Nature='Maxima') // δ²y/δx² = 2a
-        if(discriminant==0){//1 'repeated' real root which is also the stationary point
+        const Discriminant=b**2-4*a*c,a2=2*a,aNegative=a<0,x=Number((-b/a2).toFixed(3))// δy/δx = 0 = 2ax+b ∴ x=-b/(2a)
+        let Nature='Minima';aNegative&&(Nature='Maxima') // δ²y/δx² = 2a
+        if(Discriminant==0){//1 'repeated' real root which is also the stationary point
             console.log('Root (y=0) & '+Nature+': x = '+x)
         }else{//Either 2 real roots OR 2 complex roots
-            const sqrt_discriminantOver_2a=Number((Math.sqrt(Math.abs(discriminant))/a2).toFixed(3))
+            const sqrt_discriminantOver_2a=Number((Math.sqrt(Math.abs(Discriminant))/a2).toFixed(3))
             ,y=Number((a*x**2+b*x+c).toFixed(3))
-            if(discriminant>0){//2 real roots
-                const Roots=[Number((x+sqrt_discriminantOver_2a).toFixed(3)),Number((x-sqrt_discriminantOver_2a).toFixed(3))].sort((a,b)=>a-b)
-                console.log('Roots (y=0): x₀ = '+Roots[0]+' , x₁ = '+Roots[1]+'\n'+Nature+': x = '+x+' , y = '+y)
+            if(Discriminant>0){//2 real roots
+                let x0=Number((x-sqrt_discriminantOver_2a).toFixed(3)),x1=Number((x+sqrt_discriminantOver_2a).toFixed(3)),flip
+                if(aNegative){flip=x0;x0=x1;x1=flip} //sort so x₀<x₁
+                console.log('• Roots (y=0): x₀ = '+x0+' , x₁ = '+x1+'\n• '+Nature+': x = '+x+' , y = '+y)
             }else{//2 complex roots
                 let Roots=x+' ± '+Math.abs(sqrt_discriminantOver_2a)+' i';Math.abs(sqrt_discriminantOver_2a)==1&&(Roots=x+' ± i')
-                console.log('Roots (y=0): x = '+Roots+'\n'+Nature+': x = '+x+' , y = '+y)
+                console.log('• Roots (y=0): x = '+Roots+'\n• '+Nature+': x = '+x+' , y = '+y)
             }
         }
     }
 }
-,SolveQuarticDiscriminant=(a,b,c,d,e)=>{//y=a⋅x⁴+b⋅x³+c⋅x²+d⋅x+e
+,CubicDiscriminant=(a,b,c,d)=>{//y=ax³+bx²+cx+d
     if(a==0){
-        return SolveCubicDiscriminant(b,c,d,e)
+        return SolveQuadratic(b,c,d)
+    }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_3
+        const Discriminant=18*a*b*c*d-4*d*b**3+b**2*c**2-4*a*c**3-27*a**2*d**2
+        if(Discriminant==0){
+            return 'At least 1 stationary point is also a root'
+        }else if(Discriminant>0){//∴ Quadratic_Discriminant 4*(b**2-3*a*c)>0
+            return '3 real distinct roots'
+        }else{
+            return "Only 1 real root which isn't a stationary point"
+        }
+    }
+}
+,QuarticDiscriminant=(a,b,c,d,e)=>{//y=ax⁴+bx³+cx²+dx+e
+    if(a==0){
+        return CubicDiscriminant(b,c,d,e)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_4
-        const discriminant=256*a**3*e**3-192*a**2*b*d*e**2-128*a**2*c**2*e**2+144*a**2*c*d**2*e-27*a**2*d**4+144*a*b**2*c*e**2-6*a*b**2*d**2*e-80*a*b*c**2*d*e+18*a*b*c*d**3+16*a*c**4*e-4*a*c**3*d**2-27*b**4*e**2+18*b**3*c*d*e-4*b**3*d**3-4*b**2*c**3*e+b**2*c**2*d**2
-        if(discriminant==0){
-            return 'at least 2 roots are equal'
-        }else if(discriminant>0){
+        const Discriminant=256*a**3*e**3-192*a**2*b*d*e**2-128*a**2*c**2*e**2+144*a**2*c*d**2*e-27*a**2*d**4+144*a*b**2*c*e**2-6*a*b**2*d**2*e-80*a*b*c**2*d*e+18*a*b*c*d**3+16*a*c**4*e-4*a*c**3*d**2-27*b**4*e**2+18*b**3*c*d*e-4*b**3*d**3-4*b**2*c**3*e+b**2*c**2*d**2
+        if(Discriminant==0){
+            return 'At least 1 stationary point is also a root'
+        }else if(Discriminant>0){
             return 'Roots are either all real or all complex'
         }else{
             return '2 real roots and 2 complex roots'
