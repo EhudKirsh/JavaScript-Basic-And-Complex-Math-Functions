@@ -24,6 +24,7 @@ const Sum=A=>A.reduce((a,b)=>a+b) // Σ
 }
 
 ,Rank=A=>{const S=A.slice().sort((a,b)=>b-a);return A.map(v=>S.indexOf(v)+1)}
+// Purpose: rank values from biggest to smallest, e.g. Rank([0, -1.4, 7.6]) => [2, 3, 1]
 
 //Sample Variance σ² & Standard Deviation σ
 ,SampVariance=A=>{const L=A.length,mean=Sum(A)/L;return Sum(A.map(x=>(x-mean)**2))/(L-1)}
@@ -40,13 +41,22 @@ const Sum=A=>A.reduce((a,b)=>a+b) // Σ
     return (n*SumProduct(A1,A2)-Sum1*Sum2)/Math.sqrt((n*SumProduct(A1,A1)-Sum1**2)*(n*SumProduct(A2,A2)-Sum2**2))
 }
 
-,LinearExtrapolation=(x,x0,x1,y0,y1)=>y0+(x-x0)*(y1-y0)/(x1-x0) // Also works for interpolation
+,BestFitLine=(X,Y)=>{//Least Square Method: inputs are arrays of x & y coordinates which must be of equal lengths
+    let L=X.length,N=D=0
+    if(L!=Y.length)return 'Please enter arrays of x and y coordinates of equal lengths'
 
-```
+    const µ_Y=Y.reduce((a,b)=>a+b)/L,µ_X=X.reduce((a,b)=>a+b)/L // Mean averages of each array
 
-<img src='interp3.png' width='50%' height='50%'>
-
-```js
+    while(--L>=0){
+        const x=X[L]-µ_X//y=Y[L]-µ_Y
+        N+=x*(Y[L]-µ_Y);D+=x**2
+    }
+    const m=Number((N/D).toFixed(3))
+    return [m,Number((µ_Y-m*µ_X).toFixed(3))]
+    // Outputs [m,c] (m = gradient & c = y-intercep of y=mx+c)
+}
+,LinearExtrapolation=(x,x0,x1,y0,y1)=>y0+(x-x0)*(y1-y0)/(x1-x0) // Outputs y, also works for extrapolation
+// Use LinearExtrapolation when you have only 2 other coordinates, otherwise use BestFitLine and y=mx+c
 
 ,Minimum=A=>A.reduce((a,b)=>Math.min(a,b))
 ,Maximum=A=>A.reduce((a,b)=>Math.max(a,b))
