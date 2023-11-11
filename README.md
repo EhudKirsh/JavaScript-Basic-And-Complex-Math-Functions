@@ -6,6 +6,8 @@ List of basic and complex math functions I use in their most efficient JavaScrip
 
 const Sum=A=>A.reduce((a,b)=>a+b) // Σ
 
+,SumProduct=(A1,A2)=>{let Π=0;for(let L=A1.length;--L>=0;){Π+=A1[L]*A2[L]}return Π} // ∏
+
 ,MeanAverage=A=>Sum(A)/A.length // µ
 
 ,MedianAverage=A=>{A.sort((a,b)=>a-b);const L2=A.length/2;return L2%1==0?/*If Even*/(A[L2]+A[L2-1])/2:/*If Odd*/A[L2-0.5]}
@@ -23,22 +25,62 @@ const Sum=A=>A.reduce((a,b)=>a+b) // Σ
     return [Mode,HighestOccurance]
 }
 
+,Minimum=A=>A.reduce((a,b)=>Math.min(a,b))
+,Maximum=A=>A.reduce((a,b)=>Math.max(a,b))
+,MinMax3N2=A=>{//This is a 25% faster/most efficient way to get both the Minimum and Maximum of an array at the same time
+    let L=A.length,Min,Max
+    if(L&1){Min=Max=Number(A[--L])}else{const a=Number(A[--L]),b=Number(A[--L]);a>b?(Max=a,Min=b):(Max=b,Min=a)}
+    for(let Big,Small;L>0;){
+        const a=Number(A[--L]),b=Number(A[--L])
+        a>b?(Big=a,Small=b):(Big=b,Small=a)
+        Big>Max&&(Max=Big);Small<Min&&(Min=Small)
+    }
+    return [Min,Max]
+}
+,Range=A=>{const a=MinMax3N2(A);return a[1]-a[0]} // Max-Min
+
 ,Rank=A=>{const S=A.slice().sort((a,b)=>b-a);return A.map(v=>S.indexOf(v)+1)}
 // Purpose: rank values from biggest to smallest, e.g. Rank([0, -1.4, 7.6]) => [2, 3, 1]
 
-//Sample Variance σ² & Standard Deviation σ
-,SampVariance=A=>{const L=A.length,mean=Sum(A)/L;return Sum(A.map(x=>(x-mean)**2))/(L-1)}
-,SampSTD=A=>Math.sqrt(SampVariance(A))
+,FractionRank=A=>{// Adds 0.5*(occurances-1) per each tied rank
+    const R=Rank(A),L=R.length,rankCounts=new Map()
+    for (let i=-1;++i<L;){
+        const rank=R[i]
+        rankCounts.has(rank)||rankCounts.set(rank,0)
+        rankCounts.set(rank,rankCounts.get(rank)+1)
+    }
+    for (let i=-1;++i<L;)
+        R[i]+=(rankCounts.get(R[i])-1)/2
+    return R
+}//e.g. FractionRank([5,62,5,0,4,-3.4,5,62]) => [4, 1.5, 4, 7, 6, 8, 4, 1.5]
 
-//Population Variance S² & Standard Deviation S
-,PopVariance=A=>{const L=A.length,mean=Sum(A)/L;return Sum(A.map(x=>(x-mean)**2))/L}
-,PopSTD=A=>Math.sqrt(SampVariance(A))
-
-,SumProduct=(A1,A2)=>{let Result=0;for(let L=A1.length;--L>=0;){Result+=A1[L]*A2[L]}return Result}
-
-,Correlation=(A1,A2)=>{//Pearson Coefficient 'R'
-    const n=A1.length,Sum1=Sum(A1),Sum2=Sum(A2)
+,SpearmanCorrelation=(A1,A2)=>{// Coefficient 'ρ': 1 ≥ ρ ≥ -1
+    const n=A1.length,Rank1=FractionRank(A1),Rank2=FractionRank(A2);let Σd2=0
+    for(let L=n;--L>=0;)Σd2+=(Rank1[L]-Rank2[L])**2
+    return Number((1-(6*Σd2/(n*(n**2-1)))).toFixed(3))
+}
+,PearsonCorrelation=(A1,A2)=>{// Coefficient 'R': 1 ≥ R ≥ -1
+    const n=A1.length
+    if(n<2)return -Infinity // to prevent error in console when used in some apps that may not accept NaN
+    const Sum1=Sum(A1),Sum2=Sum(A2)
     return (n*SumProduct(A1,A2)-Sum1*Sum2)/Math.sqrt((n*SumProduct(A1,A1)-Sum1**2)*(n*SumProduct(A2,A2)-Sum2**2))
+}
+
+//Population Variance σ² & Standard Deviation σ
+,VAR_P=A=>{const L=A.length,µ=Sum(A)/L;return Sum(A.map(x=>(x-µ)**2))/L}
+,STDEV_P=A=>Math.sqrt(VAR_P(A))
+,COVAR_P=(A1,A2)=>{
+    const L=A1.length,µ1=Sum(A1)/L,µ2=Sum(A2)/L;let T=0
+    for(let i=L;--i>=0;)T+=(A1[i]-µ1)*(A2[i]-µ2)
+    return Number((T/L).toFixed(3))
+}
+//Sample Variance S² & Standard Deviation S
+,VAR_S=A=>{const L=A.length,µ=Sum(A)/L;return Sum(A.map(x=>(x-µ)**2))/(L-1)}
+,STDEV_S=A=>Math.sqrt(VAR_S(A))
+,COVAR_S=(A1,A2)=>{
+    const L=A1.length,µ1=Sum(A1)/L,µ2=Sum(A2)/L;let T=0
+    for(let i=L;--i>=0;)T+=(A1[i]-µ1)*(A2[i]-µ2)
+    return Number((T/(L-1)).toFixed(3))
 }
 
 ,BestFitLine=(X,Y)=>{//Least Square Method: inputs are arrays of x & y coordinates which must be of equal lengths
@@ -55,23 +97,10 @@ const Sum=A=>A.reduce((a,b)=>a+b) // Σ
     return [m,Number((µ_Y-m*µ_X).toFixed(3))]
     // Outputs [m,c] (m = gradient & c = y-intercep of y=mx+c)
 }
-,LinearExtrapolation=(x,x0,x1,y0,y1)=>y0+(x-x0)*(y1-y0)/(x1-x0) // Outputs y, also works for extrapolation
+,LinearExtrapolation=(x,x0,x1,y0,y1)=>Number((y0+(x-x0)*(y1-y0)/(x1-x0)).toFixed(3)) // Outputs y, also works for extrapolation
 // Use LinearExtrapolation when you have only 2 other coordinates, otherwise use BestFitLine and y=mx+c
 
-,Minimum=A=>A.reduce((a,b)=>Math.min(a,b))
-,Maximum=A=>A.reduce((a,b)=>Math.max(a,b))
-
-,MinMax3N2=A=>{//This is a 25% faster/most efficient way to get both the Minimum and Maximum of an array at the same time
-    let L=A.length,Min,Max
-    if(L&1){Min=Max=Number(A[--L])}else{const a=Number(A[--L]),b=Number(A[--L]);a>b?(Max=a,Min=b):(Max=b,Min=a)}
-    for(let Big,Small;L>0;){
-        const a=Number(A[--L]),b=Number(A[--L])
-        a>b?(Big=a,Small=b):(Big=b,Small=a)
-        Big>Max&&(Max=Big);Small<Min&&(Min=Small)
-    }
-    return [Min,Max]
-}
-,Range=A=>{const a=MinMax3N2(A);return a[1]-a[0]}
+,TrapeziumRule=(X_Interval,Y_Values_Array)=>Number(((2*Sum(Y_Values_Array)-Y_Values_Array[0]-Y_Values_Array.at(-1))*X_Interval/2).toFixed(3))
 
 /*--------------Iterative Greatest Common Divisor & Least Common Multiple--------------*/
 ,gcd=(a,b)=>{a<b&&([a,b]=[b,a]);while(b!=0){[a,b]=[b,a%b]}return a}
