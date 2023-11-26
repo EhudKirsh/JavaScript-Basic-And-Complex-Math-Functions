@@ -284,6 +284,38 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
 //Note: It has been proven in 1824 in the Abel–Ruffini theorem that there cannot be a general solution for polynomials of degrees greater than 4
 
 /*--------------Convert Bases--------------*/
+,Base4ToBase2=InputNumber=>{
+    InputNumber=String(InputNumber);const L_1=InputNumber.length-1;let i=-1,Result=''
+    do{
+        const Digit=InputNumber[++i]
+        switch(Digit){//log(2,4)=2, hence each digit in Base4 is replaced with exactly 2 digits in Base2
+            case '0':Result+='00'
+            break;case '1':Result+='01'
+            break;case '2':Result+='10'
+            break;case '3':Result+='11'
+            break;default:Result+=Digit
+        }
+    }while(i<L_1)
+    return Result
+}
+,Base8ToBase2=InputNumber=>{
+    InputNumber=String(InputNumber);const L_1=InputNumber.length-1;let i=-1,Result=''
+    do{
+        const Digit=InputNumber[++i]
+        switch(Digit){//log(2,8)=3, hence each digit in Base8 is replaced with exactly 3 digits in Base2
+            case '0':Result+='000'
+            break;case '1':Result+='001'
+            break;case '2':Result+='010'
+            break;case '3':Result+='011'
+            break;case '4':Result+='100'
+            break;case '5':Result+='101'
+            break;case '6':Result+='110'
+            break;case '7':Result+='111'
+            break;default:Result+=Digit
+        }
+    }while(i<L_1)
+    return Result
+}
 // This allows converting both integers and decimals from any base to any base in the range of 2-36
 ,ConvertBases=(InputNumber,InputBase,OutputBase)=>{
     if(!Number.isInteger(InputBase)||!Number.isInteger(OutputBase)||InputBase>36||InputBase<2||OutputBase>36||OutputBase<2){
@@ -291,14 +323,52 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
     }else if(InputBase==OutputBase){
         console.log('InputBase = OutputBase');return InputNumber
     }else{
-        const Base10=InputBase==10?InputNumber:parseInt(InputNumber,InputBase)
-        if(isNaN(Base10))return 'Invalid InputNumber Characters Or Format'
+        const AllowedCharcters=['.','-','0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        ,Base10=InputBase==10?InputNumber:parseInt(InputNumber,InputBase)
+        ,StringInput=String(InputNumber)
+
+        InputBase==36||AllowedCharcters.splice(InputBase-36)
+        let L=StringInput.length
+        do{
+            const Char=StringInput[--L]
+            if(!AllowedCharcters.includes(Char))return "Character '"+Char+"' is invalid in base "+InputBase
+        }while(L>0)
 
         const Result=Base10.toString(OutputBase),ResultNumber=Number(Result)
         return isNaN(ResultNumber)?Result:ResultNumber
     }
 }
+/*--------------Convert Units--------------*/
+,ConvertMassUnits=(InputNumber,UnitIndex)=>{ // UnitIndex would be one of the keys from the Units object such as 'kg' or 'lb'
+    UnitIndex==undefined&&(UnitIndex='g') // Gram is default if no unit is specified
+    const Units={
+        // Mass UnitIndices:
 
+        // British Imperial:
+        'gr': 480/31.1034768 // Grain (gr)
+        ,'dwt': 20/31.1034768 // Pennyweight (dwt)
+        ,'ozt': 1/31.1034768 // Troy Ounce (ozt)
+
+        // Metric:
+        ,'ng': 10**9 // Nanogram (ng)
+        ,'mcg': 10**6 // Microgram (mcg) A.K.A. 'μg', but 'μ' isn't used here because non-UTF-8 characters sometimes render badly in some consoles
+        ,'mg': 1000 // Milligram (mg)
+        ,'ct': 5 // Carat (ct)
+        ,'g': 1 // Gram (g) - reference
+        ,'kg': 0.001 // Kilogram (kg)
+        ,'t': 10**-6 // Tonne (t)
+
+        // American Imperial:
+        ,'oz': 16/453.59237 // Ounce (oz)
+        ,'lb': 1/453.59237 // Pound (lb)
+        ,'st': 1/14/453.59237 // Stone (st)
+        ,'tn': 7/14000/453.59237 // US Ton (tn)
+        ,'LT': 7/14000/453.59237/1.12 // Imperial Long Ton (LT)
+    }
+    ,Ratio=InputNumber/Units[UnitIndex];Units[UnitIndex]=InputNumber
+    Object.keys(Units).forEach(Key=>Key==UnitIndex||(Units[Key]=Number((Units[Key]*Ratio).toPrecision(4))))
+    return Units
+}
 /*--------------Others--------------*/
 ,FindIndices=(SearchedElement,A)=>{
     const Indices=[],L=A.length;let i=-1;do{A[i]==SearchedElement&&Indices.push(i)}while(++i<L);return Indices
