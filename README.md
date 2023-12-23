@@ -4,7 +4,7 @@ List of basic and complex math functions I use in their most efficient JavaScrip
 /*--------------Statistics--------------*/
 // Use Each Of These Directly On An Array, i.e. Func([#,#,...])
 
-const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
+const Sum=A=>{let L=A.length,S=0;do{S+=A[--L]}while(L>0);return S} // Σ
 
 ,Product=A=>{let L=A.length,P=A[--L];while(--L>=0){const a=A[L];if(a==0)return 0;P*=a}return P} // ∏
 // Efficiently returns 0 as soon as any is detected. This can also be modified to detect Infinity, -Infinity and NaN
@@ -67,7 +67,7 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
 }
 
 //Population Variance σ², Standard Deviation σ & Covariance
-,VAR_P=A=>{//To Do: Fix VAR_S & VAR_P
+,VAR_P=A=>{
     const L=A.length
     let i=L,µ=A[--i];while(--i>=0)µ+=A[i];µ/=L
     i=L;let V=(A[--i]-µ)**2;while(--i>=0)V+=(A[i]-µ)**2
@@ -100,12 +100,17 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
 /*--------------Graphing 📈--------------*/
 ,TrapeziumRule=(X_Interval,Y_Values_Array)=>Number(((2*Sum(Y_Values_Array)-Y_Values_Array[0]-Y_Values_Array.at(-1))*X_Interval/2).toFixed(3))
 
-,LinearExtrapolation=(x,x0,x1,y0,y1)=>Number((y0+(x-x0)*(y1-y0)/(x1-x0)).toFixed(3)) // Outputs y, also works for extrapolation
-// Use LinearExtrapolation when you have only 2 other coordinates, otherwise use BestFitLine and y=mx+c
+,LinearExtrapolation=(x,x0,x1,y0,y1)=>Number((y0+(x-x0)*(y1-y0)/(x1-x0)).toFixed(3))
+// Outputs y, also works for extrapolation
 
-,BestFitLine=(X,Y)=>{//Least Square Method: inputs are arrays of x & y coordinates which must be of equal lengths
+,BestFitLine2Points=(x1,x2,y1,y2)=>{
+    const m=Number(((y2-y1)/(x2-x1)).toFixed(3))
+    return [m,Number((y2-m*x2).toFixed(3))]
+    // Outputs [m,c] (m = gradient & c = y-intercep of y=mx+c)
+}
+,BestFitLineLSM=(X,Y)=>{//Least Square Method: inputs are arrays of x & y coordinates which must be of equal lengths
     let L=X.length,µ_Y=µ_X=N=D=0
-    if(L!=Y.length)return 'Please enter arrays of x and y coordinates of equal lengths'
+    if(L!=Y.length)return'Please enter arrays of x and y coordinates of equal lengths'
 
     for(let i=L;--i>=0;µ_Y+=Y[i])µ_X+=X[i]
     µ_Y/=L;µ_X/=L
@@ -115,9 +120,6 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
     return [m,Number((µ_Y-m*µ_X).toFixed(3))]
     // Outputs [m,c] (m = gradient & c = y-intercep of y=mx+c)
 }
-
-/*--------------Logarithms & Exponentials--------------*/ // log(😅) = 💧log(😄)
-,BaseLog=(Base,Num)=>Number((Math.log(Num)/Math.log(Base)).toFixed(3))
 
 /*--------------Iterative Greatest Common Divisor & Least Common Multiple--------------*/
 ,gcd=(a,b)=>{a<b&&([a,b]=[b,a]);while(b!=0)[a,b]=[b,a%b];return a}
@@ -149,6 +151,23 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
     }else//fraction
         return Gamma(n+1)
 }
+/*--------------2 Vectors--------------*/
+,AngleBetween2Vectors=(A,B)=>{
+    let L=A.length,α=A[0],β=B[0],a=α**2,b=β**2,ab=α*β
+    if(L!=B.length)return'Please enter A and B arrays of equal lengths'
+    while(--L>0){α=A[L];β=B[L];a+=α**2;b+=β**2;ab+=α*β}
+    const θ=Math.acos(ab/Math.sqrt(a)/Math.sqrt(b))
+    if(θ==0||isNaN(θ))
+        console.log('Parallel')
+    else if(θ==Math.PI/2)
+        console.log('Perpendicular')
+    else
+        console.log('Not Parallel Or Perpendicular')
+    return θ
+    // π/2 Radians ≥ Angle ≥ 0
+}
+,VectorsCrossProduct3D=(A,B)=>[A[1]*B[2]-A[2]*B[1],A[2]*B[0]-A[0]*B[2],A[0]*B[1]-A[1]*B[0]]
+// Inputs [A0,A1,A2] & [B0,B1,B2] and returns 3X3 determinant of [[i,j,k],[A0,A1,A2],[B0,B1,B2]] in [i,j,k] format
 
 /*--------------2D Matrices--------------*/
 ,AddToEachElement=(M,n)=>M.map(r=>r.map(e=>e+=n))
@@ -161,22 +180,31 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
 
 ,AddMatrices=(M1,M2)=>M1.map((R,r)=>R.map((e,c)=>e+=M2[r][c])) // M1 + M2
 ,SubtractMatrices=(M1,M2)=>M1.map((R,r)=>R.map((e,c)=>e-=M2[r][c])) // M1 - M2
-,DotProductMatrices=(M1,M2)=>M1.map((R,r)=>R.map((e,c)=>e*=M2[r][c])) // M1 ⋅ M2
+,DotProductMatrices=(M1,M2)=>{// M1 ⋅ M2 | Matrix Multiplication
+    const M2Rows=M2.length,M1Cols=M1[0].length
+    if(M1Cols==undefined)//For 1D Arrays SumProduct, correct user input format
+        M1=[M1]
+    else if(M1[0].length!=M2Rows)
+        return'#Cols of 1st Matrix must equal to #rows of 2nd matrix!'
+
+    const Rows=M1.length,Cols=M2[0].length
+    ,M=Array.from({length:Rows},()=>Array.from({length:Cols},()=>0))
+    // When 2 matrices are multiplied, the resulting matrix has the same # rows as the 1st matrix and the same # cols as 2nd matrix
+
+    // Row x Col → Row , Remember: fiRst seCond thiRd | R.C.R.
+    for(let R=-1;++R<Rows;){
+        for(let C=-1;++C<Cols;){
+            for(let i=-1;++i<M2Rows;){
+                M[R][C]+=M1[R][i]*M2[i][C]
+            }
+        }
+    }
+    return M
+}
 
 ,RowElements=(M,r)=>M[r]
 ,ColElements=(M,c)=>M.map(R=>R[c])
 ,DiagonalElements=M=>M.map((R,C)=>R[C])
-
-,Transpose=M=>M[0].length==1?M.flat():!isNaN(M[0])?M.map(x=>[x]):M[0].map((x,i)=>M.map(x=>x[i]))
-
-,IdentityMatrix=I=>Array.from({length:I},(r,i)=>Array.from({length:I},(c,j)=>(i==j?1:0)))
-// I is an integer such that I = #Rows = #Cols
-
-,MinorSubMatrix=(M,Row,Col)=>{ // To Do: Also known as Co-factor?
-    if(!Number.isInteger(Row)||!Number.isInteger(Col))return 'Please enter Row & Col as integers'
-    if(M.length==2)return M[Math.abs(Row-1)][Math.abs(Col-1)]
-    M.splice(Row,1);M.forEach(row=>row.splice(Col,1));return M
-}
 
 ,Determinant2X2=M=>M[0][0]*M[1][1]-M[0][1]*M[1][0] // Only works on Matrix [[a,b],[c,d]] such that det(M)=|M|=a*d-b*c
 ,Determinant3X3=M=>M[0][0]*(M[1][1]*M[2][2]-M[1][2]*M[2][1])-M[0][1]*(M[1][0]*M[2][2]-M[1][2]*M[2][0])+M[0][2]*(M[1][0]*M[2][1]-M[1][1]*M[2][0])
@@ -184,7 +212,19 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
 ,Excluding=i=>xs=>[...xs.slice(0,i),...xs.slice(i+1)]
 ,RecursiveDeterminant=([xs,...xss])=>xs.length==1?xs[0]:Sum(xs.map((x,i)=>(-1)**i*x*RecursiveDeterminant(xss.map(Excluding(i)))))
 
+// Note: If all the elements in any one row or col in a sqaure matrix are 0, the determinant is 0
 ,DeterminantOfTriangleMatrix=M=>Number((Product(DiagonalElements(M))).toFixed(3))
+
+,Transpose=M=>M[0].length==1?M.flat():!isNaN(M[0])?M.map(x=>[x]):M[0].map((x,i)=>M.map(x=>x[i]))
+// Don't confuse Transpose with Inverse
+
+,IdentityMatrix=i=>Array.from({length:i},(x,r)=>Array.from({length:i},(y,c)=>(r==c?1:0)))
+
+,MinorSubMatrix=(M,Row,Col)=>{// Deletes a row & a col
+    if(!Number.isInteger(Row)||!Number.isInteger(Col))return'Please enter Row & Col as integers'
+    if(M.length==2)return M[Math.abs(Row-1)][Math.abs(Col-1)]
+    M.splice(Row,1);M.forEach(row=>row.splice(Col,1));return M
+}
 
 /*--------------Randomness--------------*/
 ,Shuffle=A=>A.sort(()=>Math.random()-0.5) // Change the order of elements randomly like a deck of cards 🃏🎴
@@ -218,7 +258,7 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
         return SolveLinear(b,c)
     }else{//https://en.wikipedia.org/wiki/Discriminant#Degree_2
         const Discriminant=b**2-4*a*c,a2=2*a,aNegative=a<0,x=Number((-b/a2).toFixed(3))// δy/δx = 0 = 2ax+b ∴ x=-b/(2a)
-        let Nature;aNegative?Nature='Maxima':Nature='Minima' // δ²y/δx² = 2a
+        ,Nature=aNegative?'Maxima':'Minima' // δ²y/δx² = 2a
         if(Discriminant==0){// 1 'repeated' real root which is also the stationary point
             console.log('Root (y=0) & '+Nature+': x = '+x)
         }else{//Either 2 real roots OR 2 complex roots
@@ -235,7 +275,6 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
         }
     }
 }
-
 ,QuadraticDiscriminant=(a,b,c)=>{//y=ax²+bx+c, also known as parabolic
     if(a==0){
         return SolveLinear(b,c)
@@ -245,7 +284,7 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
             console.log("• 1 'repeated' real root which is also the stationary point")
         }else if(Discriminant>0){
             console.log('• 2 real roots')
-        }else{
+        }else{//Discriminant<0
             console.log('• 2 complex roots')
         }
         return Discriminant
@@ -260,7 +299,7 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
             console.log('• At least 1 stationary point is also a root')
         }else if(Discriminant>0){//∴ Quadratic_Discriminant 4*(b**2-3*a*c)>0
             console.log('• 3 real distinct roots')
-        }else{
+        }else{//Discriminant<0
             console.log("• Only 1 real root which isn't a stationary point")
         }
         return Discriminant
@@ -275,43 +314,66 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
             console.log('• At least 1 stationary point is also a root')
         }else if(Discriminant>0){
             console.log('• Roots are either all real or all complex')
-        }else{
+        }else{//Discriminant<0
             console.log('• 2 real roots and 2 complex roots')
         }
         return Discriminant
     }
 }
+
 //Note: It has been proven in 1824 in the Abel–Ruffini theorem that there cannot be a general solution for polynomials of degrees greater than 4
 
+/*--------------Logarithms & Exponentials--------------*/ // log(😅) = 💧log(😄)
+,BaseLog=(Base,Num)=>Number((Math.log(Num)/Math.log(Base)).toFixed(3))
+
 /*--------------Convert Bases--------------*/
+/*
+    There are few ways to convert between bases
+    The fastest way to convert, which also never result in non-terminating repeating decimals involves replacing each character with others,
+    and therefore doesn't involve any actual math calculations.
+
+    For 2 bases to quality to this efficient conversion, their BaseLog needs to be an integer.
+    Their BaseLog integer specifies the number of characters which are replaced in the smaller base from a single character in the larger base.
+    2 Bases can also use this method if thier BaseLog isn't an integer, but they share another base to which they seperately have integer BaseLog,
+    e.g. Base8 Octal and Base16 Hexadecimal are efficiently conveted between via Base2 Binary.
+*/
+
 ,Base4ToBase2=InputNumber=>{
-    InputNumber=String(InputNumber);const L_1=InputNumber.length-1;let i=-1,Result=''
+    InputNumber=String(InputNumber);let i=-1,Point=false,Result=''
+    if(InputNumber[0]=='-'){InputNumber=InputNumber.slice(1);Result='-'}
+    const L_1=InputNumber.length-1
     do{
         const Digit=InputNumber[++i]
-        switch(Digit){//log(2,4)=2, hence each digit in Base4 is replaced with exactly 2 digits in Base2
-            case '0':Result+='00'
-            break;case '1':Result+='01'
-            break;case '2':Result+='10'
-            break;case '3':Result+='11'
-            break;default:Result+=Digit
+        switch(Digit){// BaseLog(2,4)=2, hence each digit in Base4 is replaced with exactly 2 digits in Base2
+            case '0':Result+='00';break
+            case '1':Result+='01';break
+            case '2':Result+='10';break
+            case '3':Result+='11';break
+            case '-':return"Can only have a minus sign '-' at the start"
+            case '.':if(Point){return"Can't have multiple decimal points '.'"}else{Result+='.';Point=true;break}
+            default: return"Character '"+Digit+"' is invalid"
         }
     }while(i<L_1)
     return Result
 }
 ,Base8ToBase2=InputNumber=>{
-    InputNumber=String(InputNumber);const L_1=InputNumber.length-1;let i=-1,Result=''
+    InputNumber=String(InputNumber);let i=-1,Point=false,Result=''
+    if(InputNumber[0]=='-'){InputNumber=InputNumber.slice(1);Result='-'}
+    const L_1=InputNumber.length-1
     do{
         const Digit=InputNumber[++i]
-        switch(Digit){//log(2,8)=3, hence each digit in Base8 is replaced with exactly 3 digits in Base2
-            case '0':Result+='000'
-            break;case '1':Result+='001'
-            break;case '2':Result+='010'
-            break;case '3':Result+='011'
-            break;case '4':Result+='100'
-            break;case '5':Result+='101'
-            break;case '6':Result+='110'
-            break;case '7':Result+='111'
-            break;default:Result+=Digit
+        switch(Digit){// BaseLog(2,8)=3, hence each digit in Base8 is replaced with exactly 3 digits in Base2
+            case '0':Result+='000';break
+            case '1':Result+='001';break
+            case '2':Result+='010';break
+            case '3':Result+='011';break
+            case '4':Result+='100';break
+            case '5':Result+='101';break
+            case '6':Result+='110';break
+            case '7':Result+='111';break
+            case '-':return"Can only have a minus sign '-' at the start"
+            case '.':if(Point){return"Can't have multiple decimal points '.'"}else{Result+='.';Point=true;break}
+            default: return"Character '"+Digit+"' is invalid"
         }
     }while(i<L_1)
     return Result
@@ -319,7 +381,7 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
 // This allows converting both integers and decimals from any base to any base in the range of 2-36
 ,ConvertBases=(InputNumber,InputBase,OutputBase)=>{
     if(!Number.isInteger(InputBase)||!Number.isInteger(OutputBase)||InputBase>36||InputBase<2||OutputBase>36||OutputBase<2){
-        return 'InputBase & OutputBase must be whole numbers between 2-36'
+        return'InputBase & OutputBase must be whole numbers between 2-36'
     }else if(InputBase==OutputBase){
         console.log('InputBase = OutputBase');return InputNumber
     }else{
@@ -331,13 +393,14 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
         let L=StringInput.length
         do{
             const Char=StringInput[--L]
-            if(!AllowedCharcters.includes(Char))return "Character '"+Char+"' is invalid in base "+InputBase
+            if(!AllowedCharcters.includes(Char))return"Character '"+Char+"' is invalid in base "+InputBase
         }while(L>0)
 
         const Result=Base10.toString(OutputBase),ResultNumber=Number(Result)
         return isNaN(ResultNumber)?Result:ResultNumber
     }
 }
+
 /*--------------Convert Units--------------*/
 ,ConvertMassUnits=(InputNumber,UnitIndex)=>{ // UnitIndex would be one of the keys from the Units object such as 'kg' or 'lb'
     UnitIndex==undefined&&(UnitIndex='g') // Gram is default if no unit is specified
@@ -345,32 +408,53 @@ const Sum=A=>{let L=A.length,Σ=0;do{Σ+=A[--L]}while(L>0);return Σ} // Σ
         // Mass UnitIndices:
 
         // British Imperial:
-        'gr': 480/31.1034768 // Grain (gr)
-        ,'dwt': 20/31.1034768 // Pennyweight (dwt)
-        ,'ozt': 1/31.1034768 // Troy Ounce (ozt)
+        'gr': 480/31.1034768 // Grain
+        ,'dwt': 20/31.1034768 // Pennyweight
+        ,'ozt': 1/31.1034768 // Troy Ounce
 
         // Metric:
-        ,'ng': 10**9 // Nanogram (ng)
-        ,'mcg': 10**6 // Microgram (mcg) A.K.A. 'μg', but 'μ' isn't used here because non-UTF-8 characters sometimes render badly in some consoles
-        ,'mg': 1000 // Milligram (mg)
-        ,'ct': 5 // Carat (ct)
-        ,'g': 1 // Gram (g) - reference
-        ,'kg': 0.001 // Kilogram (kg)
-        ,'t': 10**-6 // Tonne (t)
+        ,'ng': 10**9 // Nanogram
+        ,'mcg': 10**6 // Microgram , A.K.A. 'μg', but 'μ' isn't used here because non-UTF-8 characters sometimes render badly in some consoles
+        ,'mg': 1000 // Milligram
+        ,'ct': 5 // Carat
+        ,'g': 1 // Gram - reference
+        ,'kg': 0.001 // Kilogram
+        ,'t': 10**-6 // Tonne
 
         // American Imperial:
-        ,'oz': 16/453.59237 // Ounce (oz)
-        ,'lb': 1/453.59237 // Pound (lb)
-        ,'st': 1/14/453.59237 // Stone (st)
-        ,'tn': 7/14000/453.59237 // US Ton (tn)
-        ,'LT': 7/14000/453.59237/1.12 // Imperial Long Ton (LT)
+        ,'oz': 16/453.59237 // Ounce
+        ,'lb': 1/453.59237 // Pound
+        ,'st': 1/14/453.59237 // Stone
+        ,'tn': 7/14000/453.59237 // US Ton
+        ,'LT': 7/14000/453.59237/1.12 // Imperial Long Ton
     }
     ,Ratio=InputNumber/Units[UnitIndex];Units[UnitIndex]=InputNumber
     Object.keys(Units).forEach(Key=>Key==UnitIndex||(Units[Key]=Number((Units[Key]*Ratio).toPrecision(4))))
     return Units
 }
-/*--------------Others--------------*/
+
+/*--------------Standard Maclaurin Series--------------*/
+// Note: The functions below all have an equivilant Math API function built into JS, but I consider these as syntactic sugar and redundant, so here's what they would look like if we only had the JS syntax we acutally NEEDED for basic functionality
+
+// x = number , i = # iterations (more takes more time, but increases accuracy)
+
+,Exponential=(x,i)=>{// Math.exp(x) | Math.E**x | e^x
+    if(i==undefined)
+        i=30 // default # iterations
+    else if(!Number.isInteger(i)||i<1)
+        return'i must be a positive integer!'
+
+    let j=1,N=x,r=x+1
+    while(++j<=i){N*=x/j;r+=N}
+    return r
+}
+
+/*--------------Strings--------------*/
 ,FindIndices=(SearchedElement,A)=>{
     const Indices=[],L=A.length;let i=-1;do{A[i]==SearchedElement&&Indices.push(i)}while(++i<L);return Indices
 } // e.g. FindIndices('h',[true,'h',6,'try',6,false,'h',0,-5.4,'h']) => [1, 6, 9]
+
+,RemoveLeadingCharacter=(Str,Char)=>{while(Str[0]==Char)Str=Str.slice(1);return Str}
+,RemoveFollowUpCharacter=(Str,Char)=>{while(Str.at(-1)==Char)Str=Str.slice(0,-1);return Str}
+
 ```
