@@ -230,7 +230,6 @@ The functions below are inspired by Casio calculators:
 }// e.g. GenerateArraySLS(0,10,1) ➜ [0,1,2,3,4,5,6,7,8,9]
 
 ,GenerateArrayLSE=(Length,Step,End)=>{
-    // To Do: check these before calculating if()
     const A=[]
     while(--Length>=0){A[Length]=End;End-=Step}
     return A
@@ -617,8 +616,10 @@ Other useful linear:
         k=a*N+k2;k2=N;N=k
     }
     console.log(i,' iterations');return G!=true?[S*N,D]:[S*D,N]// [ N = Numerator , D = Denominator ]
-}//e.g. DecimalToFraction(76.92)=>[1923,25]; DecimalToFraction(-0.0314)=>[-157,5000]
-
+}/*e.g. DecimalToFraction(76.92) ➜ [1923,25]; DecimalToFraction(-0.0314) ➜ [-157,5000]
+    The uniquely nice thing about this function is that the output is equal to the input,so you can easily verify
+    the outputs are correct by entering them into a terminal to get the input, e.g. 1923/25 ➜ 76.92 , -157/5000 ➜ -0.0314
+*/
 /*--------------Standard Maclaurin Series--------------*/
 // Note: The functions below all have an equivilant Math API function built into JS, but I consider these as syntactic sugar and redundant, so here's what they would look like if we only had the JS syntax we acutally NEEDED for basic functionality
 
@@ -684,7 +685,6 @@ i = # iterations (more takes more time, but increases accuracy)
 // Methods that turn a fraction into one of two consecutive integers
 ,Round=N=>N>0?N+0.5|0:IsInt(2*N)?N|0:N-0.5|0 // Math.round(N), e.g. Round(-1.5) ➜ -1, Round(2.3) ➜ 2
 
-// To Do: adjust for -0.5 , Infinity ➜ Infinity, -Infinity ➜ -Infinity and strings ➜ NaN
 ,Floor=N=>(N|0)-(N<(N|0)) /* Math.floor(N), Alternatively: (N|0)-(N>>31&1), but doesn't work for 0 > N > -1
 ABS(N)==Infinity?N:N<0?(N|0)-1:N|0, but bitwise is faster
     e.g. Floor(0) ➜ 0 , Floor(-4.5) ➜ -5 , Floor(4.5) ➜ 4 */
@@ -718,7 +718,7 @@ ABS(N)==Infinity?N:N<0?N|0:(N|0)+1
 ,MachinsPI=i=>{// Math.PI = MachinsPI() | 3.141592653589793
     if(i==undefined)i=1000//default iterations
     else if(!Number.isInteger(i)||i<0)return'i must be either zero or a positive integer!'
-    let π=0,p,k=-1 // To Do: make iteration like Taylor_Series
+    let π=0,p,k=-1
     while(p!=π&&++k<i){p=π;π+=(4/(8*k+1)-2/(8*k+4)-1/(8*k+5)-1/(8*k+6))/(16**k)}
     console.log(i,'iterations')
     return π
@@ -745,7 +745,7 @@ ABS(N)==Infinity?N:N<0?N|0:(N|0)+1
 ,QuotientDivision=(N,D)=>N/D|0 // N = Numerator , D = Denominator, e.g. QuotientDivision(-7,2) ➜ -3
 
 /* Swap the values of two variables such that a=b & b=a
-    It's easier to do it without making function, because we're trying to change the original variables, not return new ones
+    It's easier to swap without making function, because we're trying to change the original variables, not return new ones
 
     Temporary Variable: const c=a;a=b;b=c
     Destructuring Assignment: [a,b]=[b,a]
