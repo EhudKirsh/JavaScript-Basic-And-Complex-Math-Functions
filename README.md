@@ -620,21 +620,6 @@ Other useful linear:
     The uniquely nice thing about this function is that the output is equal to the input,so you can easily verify
     the outputs are correct by entering them into a terminal to get the input, e.g. 1923/25 ➜ 76.92 , -157/5000 ➜ -0.0314
 */
-/*--------------Standard Maclaurin Series--------------*/
-// Note: The functions below all have an equivilant Math API function built into JS, but I consider these as syntactic sugar and redundant, so here's what they would look like if we only had the JS syntax we acutally NEEDED for basic functionality
-
-// x = number , i = # iterations (more takes more time, but increases accuracy)
-
-,Exponential=(x,i)=>{// Math.exp(x) | Math.E**x | e^x
-    if(i==undefined)
-        i=30 // default # iterations
-    else if(!Number.isInteger(i)||i<1)
-        return'i must be a positive integer!'
-
-    let j=1,N=x,r=x+1
-    while(++j<=i){N*=x/j;r+=N}
-    return r
-}
 
 /*--------------Logarithms & Exponentials--------------*/ // log(😅) = 💧log(😄)
 ,BaseLog=(Base,Num)=>Math.log(Num)/Math.log(Base) // BaseLog_Base(Number)
@@ -642,7 +627,7 @@ Other useful linear:
 /*--------------Iterative Taylor/Maclaurin Series--------------*/
 /* Note: The functions below all have an equivilant Math API function built into JS, but I consider these as Redundant Syntactic Sugar, so here's what they would look like if we only had the JS syntax we acutally NEEDED for basic functionality
 
-i = # iterations (more takes more time, but increases accuracy) 
+x = number , i = # iterations (more takes more time, but increases accuracy) 
 
 */
 
