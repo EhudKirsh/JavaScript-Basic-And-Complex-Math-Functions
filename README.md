@@ -1,4 +1,4 @@
-List of basic and complex math functions I use in their most efficient JavaScript forms:
+List of basic and complex math functions I programmed in their most efficient JavaScript forms:
 ```js
 'use strict'
 /*--------------Statistics--------------*/
